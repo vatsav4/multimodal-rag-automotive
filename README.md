@@ -12,6 +12,20 @@ This project implements a Multimodal Retrieval-Augmented Generation (RAG) system
 - **RESTful API**: Built with FastAPI for easy integration.
 - **Source Attribution**: Provides page numbers and content types for transparency.
 
+## Problem Statement
+
+In modern automobile manufacturing environments, engineers and maintenance teams rely heavily on a wide range of technical documents such as machine manuals, standard operating procedures (SOPs), fault diagnostic guides, and equipment datasheets. These documents are typically distributed in PDF format and contain a mixture of unstructured text, structured tables, and complex engineering diagrams. Despite the availability of such documentation, extracting actionable insights in real time remains a significant challenge on the shop floor.
+
+The primary domain of this problem is automobile manufacturing, particularly within production lines involving conveyors, programmable logic controllers (PLCs), drives such as Siemens G120, and robotic assembly systems. Engineers frequently encounter situations where machines generate fault codes (e.g., F7801), abnormal behaviors, or unexpected stoppages. Resolving these issues requires searching through extensive manuals, cross-referencing tables, and interpreting diagrams, which is both time-consuming and error-prone.
+
+The challenge is further compounded by the multimodal nature of these documents. Critical information is often embedded in tables (e.g., parameter ranges, torque specifications), while root cause explanations may be described in textual paragraphs. Additionally, wiring diagrams and process flow images provide essential context that cannot be captured through text alone. Traditional keyword-based search systems fail to retrieve relevant information across these modalities effectively, especially when queries are phrased in natural language.
+
+This problem is distinct from generic document question-answering systems due to several domain-specific complexities. First, the terminology used in manufacturing is highly specialized, involving technical jargon related to automation systems, drives, and industrial communication protocols. Second, the presence of structured tables requires semantic understanding beyond simple text matching. Third, engineering diagrams demand visual interpretation to extract meaningful insights. Finally, the consequences of incorrect information can lead to production downtime, safety risks, and financial losses, making accuracy and grounding critical.
+
+A Retrieval-Augmented Generation (RAG) approach is particularly well-suited to address this problem. Unlike fine-tuned models that require extensive labeled data and frequent retraining, RAG systems dynamically retrieve relevant information from a knowledge base at query time. This ensures that responses are grounded in actual documents and remain up-to-date as new manuals or SOPs are added. Furthermore, RAG enables the integration of multimodal data by converting images into textual summaries using vision-language models, allowing them to be indexed alongside text and tables.
+
+The proposed system ingests multimodal PDF documents, extracts and processes text, tables, and images, and builds a unified vector-based index. When a user submits a natural language query, the system retrieves the most relevant chunks across all modalities and generates a context-aware response using a language model. The system also provides source references, including page numbers and content types, ensuring transparency and traceability.
+
 ## Installation
 
 1. Clone the repository:
@@ -75,22 +89,30 @@ The system consists of the following components:
 
 Contributions are welcome. Please open an issue or submit a pull request.
 
-## License
+## 🏗️ Architecture Overview
 
-This project is licensed under the MIT License.
+```mermaid
+flowchart TD
 
-Problem Statement
+A[PDF Upload] --> B[Parser]
 
-In modern automobile manufacturing environments, engineers and maintenance teams rely heavily on a wide range of technical documents such as machine manuals, standard operating procedures (SOPs), fault diagnostic guides, and equipment datasheets. These documents are typically distributed in PDF format and contain a mixture of unstructured text, structured tables, and complex engineering diagrams. Despite the availability of such documentation, extracting actionable insights in real time remains a significant challenge on the shop floor.
+B --> C1[Text Extraction]
+B --> C2[Table Extraction]
+B --> C3[Image Extraction]
 
-The primary domain of this problem is automobile manufacturing, particularly within production lines involving conveyors, programmable logic controllers (PLCs), drives such as Siemens G120, and robotic assembly systems. Engineers frequently encounter situations where machines generate fault codes (e.g., F7801), abnormal behaviors, or unexpected stoppages. Resolving these issues requires searching through extensive manuals, cross-referencing tables, and interpreting diagrams, which is both time-consuming and error-prone.
+C3 --> D[Vision Model → Image Summary]
 
-The challenge is further compounded by the multimodal nature of these documents. Critical information is often embedded in tables (e.g., parameter ranges, torque specifications), while root cause explanations may be described in textual paragraphs. Additionally, wiring diagrams and process flow images provide essential context that cannot be captured through text alone. Traditional keyword-based search systems fail to retrieve relevant information across these modalities effectively, especially when queries are phrased in natural language.
+C1 --> E[Chunking]
+C2 --> E
+D --> E
 
-This problem is distinct from generic document question-answering systems due to several domain-specific complexities. First, the terminology used in manufacturing is highly specialized, involving technical jargon related to automation systems, drives, and industrial communication protocols. Second, the presence of structured tables requires semantic understanding beyond simple text matching. Third, engineering diagrams demand visual interpretation to extract meaningful insights. Finally, the consequences of incorrect information can lead to production downtime, safety risks, and financial losses, making accuracy and grounding critical.
+E --> F[Embeddings]
 
-A Retrieval-Augmented Generation (RAG) approach is particularly well-suited to address this problem. Unlike fine-tuned models that require extensive labeled data and frequent retraining, RAG systems dynamically retrieve relevant information from a knowledge base at query time. This ensures that responses are grounded in actual documents and remain up-to-date as new manuals or SOPs are added. Furthermore, RAG enables the integration of multimodal data by converting images into textual summaries using vision-language models, allowing them to be indexed alongside text and tables.
+F --> G[FAISS Vector DB]
 
-The proposed system ingests multimodal PDF documents, extracts and processes text, tables, and images, and builds a unified vector-based index. When a user submits a natural language query, the system retrieves the most relevant chunks across all modalities and generates a context-aware response using a language model. The system also provides source references, including page numbers and content types, ensuring transparency and traceability.
+UserQuery --> H[Retriever]
+G --> H
 
-A successful implementation enables engineers to quickly diagnose machine faults, understand parameter settings, and interpret technical diagrams without manually navigating lengthy documents. It reduces troubleshooting time, improves operational efficiency, and democratizes access to critical knowledge across the organization.
+H --> I[LLM]
+
+I --> J[Answer + Sources]
