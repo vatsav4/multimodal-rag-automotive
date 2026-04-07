@@ -46,7 +46,7 @@ The proposed system ingests multimodal PDF documents, extracts and processes tex
    Create a `.env` file in the root directory and add your OpenAI API key:
 
    ```
-   OPENAI_API_KEY=your_api_key_here
+   OPENAI_API_KEY
    ```
 
 ## Usage
