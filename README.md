@@ -89,7 +89,7 @@ The system consists of the following components:
 
 Contributions are welcome. Please open an issue or submit a pull request.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```mermaid
 flowchart TD
