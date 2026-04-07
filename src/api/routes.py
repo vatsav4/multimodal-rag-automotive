@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile
 from src.ingestion.parser import parse_pdf
+from src.retrieval.vector_store import create_vector_store
 
 router = APIRouter()
 
@@ -11,6 +12,8 @@ def health():
 @router.post("/ingest")
 async def ingest(file: UploadFile):
     result = parse_pdf(file)
+
+    create_vector_store(result["data"])
 
     return {
         "message": "Ingestion successful",
