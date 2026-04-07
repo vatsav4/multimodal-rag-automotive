@@ -1,9 +1,10 @@
-from src.retrieval.vector_store import vector_db
+from src.retrieval.vector_store import get_vector_db
 
 
 def retrieve_docs(query):
-    if vector_db is None:
+    vdb = get_vector_db()
+    if vdb is None:
         return []
 
-    docs = vector_db.similarity_search(query, k=5)
+    docs = vdb.similarity_search(query, k=5)
     return docs
